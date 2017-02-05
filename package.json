@@ -1,0 +1,26 @@
+{
+  "name": "delegated-recovery",
+  "version": "0.0.0",
+  "description": "Delegated recovery draft implementation",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha . --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dafortune/delegated-recovery.git"
+  },
+  "author": "Fortune",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dafortune/delegated-recovery/issues"
+  },
+  "homepage": "https://github.com/dafortune/delegated-recovery#readme",
+  "dependencies": {
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  }
+}
