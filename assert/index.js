@@ -7,7 +7,7 @@ exports.number = function number(number, message) {
 }
 
 exports.integer = function integer(number, message) {
-  if (Math.floor(number) === number) {
+  if (Math.floor(number) !== number) {
     throw new Error(message)
   }
 }

@@ -9,7 +9,7 @@ describe('data types', function() {
       it('reads a number from the correct offset', function() {
         const buffer = new Buffer(20)
         buffer.writeUInt8(12, 8)
-        expect(dataTypes.int8.read(buffer, { offset: 8 })).to.equal(12)
+        expect(dataTypes.int8.read(buffer, { offset: 8 })).to.eql({ value: 12, bytesLength: 1 })
       })
     })
 
@@ -27,7 +27,7 @@ describe('data types', function() {
       it('reads a number from the correct offset', function() {
         const buffer = new Buffer(20)
         buffer.writeInt8(-12, 8)
-        expect(dataTypes.int8.read(buffer, { offset: 8 })).to.equal(-12)
+        expect(dataTypes.int8.read(buffer, { offset: 8 })).to.eql({ value: -12, bytesLength: 1 })
       })
     })
 
@@ -47,8 +47,8 @@ describe('data types', function() {
         buffer.write('a', 8, 'utf8')
 
         const read = dataTypes.byte.read(buffer, { offset: 8 })
-        expect(Buffer.isBuffer(read)).to.be.true
-        expect(read.toString('utf8')).to.equal('a')
+        expect(Buffer.isBuffer(read.value)).to.be.true
+        expect(read).to.eql({ value: new Buffer('a', 'utf8'), bytesLength: 1 })
       })
     })
 
@@ -80,7 +80,7 @@ describe('data types', function() {
       it('reads a number from the correct offset', function() {
         const buffer = new Buffer(20)
         buffer.writeUInt16BE(12, 8)
-        expect(dataTypes.uint16.read(buffer, { offset: 8 })).to.equal(12)
+        expect(dataTypes.uint16.read(buffer, { offset: 8 })).to.eql({ value: 12, bytesLength: 2 })
       })
     })
 
@@ -98,7 +98,7 @@ describe('data types', function() {
       it('reads a number from the correct offset', function() {
         const buffer = new Buffer(20)
         buffer.writeInt16BE(-12, 8)
-        expect(dataTypes.int16.read(buffer, { offset: 8 })).to.equal(-12)
+        expect(dataTypes.int16.read(buffer, { offset: 8 })).to.eql({ value: -12, bytesLength: 2 })
       })
     })
 
@@ -116,7 +116,7 @@ describe('data types', function() {
       it('reads a number from the correct offset', function() {
         const buffer = new Buffer(20)
         buffer.writeDoubleBE(-12.2, 8)
-        expect(dataTypes.double.read(buffer, { offset: 8 })).to.equal(-12.2)
+        expect(dataTypes.double.read(buffer, { offset: 8 })).to.eql({ value: -12.2, bytesLength: 8 })
       })
     })
 
@@ -134,7 +134,7 @@ describe('data types', function() {
       it('reads a number from the correct offset', function() {
         const buffer = new Buffer(20)
         buffer.writeFloatBE(-12.300000190734863, 8)
-        expect(dataTypes.float.read(buffer, { offset: 8 })).to.equal(-12.300000190734863)
+        expect(dataTypes.float.read(buffer, { offset: 8 })).to.eql({ value: -12.300000190734863, bytesLength: 4 })
       })
     })
 
@@ -152,7 +152,7 @@ describe('data types', function() {
       it('reads an string from the correct offset', function() {
         const buffer = new Buffer(20)
         buffer.write('hola', 8, 'utf8')
-        expect(dataTypes.string.read(buffer, { offset: 8, length: 4 })).to.equal('hola')
+        expect(dataTypes.string.read(buffer, { offset: 8, length: 4 })).to.eql({ value: 'hola', bytesLength: 4 })
       })
     })
 
@@ -183,8 +183,9 @@ describe('data types', function() {
         expectedBuffer[4] = 123
 
         const read = dataTypes.bytes.read(buffer, { offset: 8, length: 5 })
-        expect(Buffer.isBuffer(read)).to.be.true
-        expect(read).to.eql(expectedBuffer)
+        expect(read.bytesLength).to.equal(5)
+        expect(Buffer.isBuffer(read.value)).to.be.true
+        expect(read.value).to.eql(expectedBuffer)
       })
     })
 
@@ -231,7 +232,8 @@ describe('data types', function() {
           buffer.writeUInt8(11, 9)
           buffer.writeUInt8(10, 10)
           buffer.writeUInt8(9, 11)
-          expect(dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'uint8' } })).to.eql([12, 11, 10, 9])
+          expect(dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'uint8' } }))
+            .to.eql({ value: [12, 11, 10, 9], bytesLength: 4 })
         })
       })
 
@@ -261,7 +263,8 @@ describe('data types', function() {
           buffer.writeInt8(-11, 9)
           buffer.writeInt8(-10, 10)
           buffer.writeInt8(9, 11)
-          expect(dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'int8' } })).to.eql([12, -11, -10, 9])
+          expect(dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'int8' } }))
+            .to.eql({ value: [12, -11, -10, 9], bytesLength: 4 })
         })
       })
 
@@ -293,15 +296,16 @@ describe('data types', function() {
           buffer[11] = 223
 
           const result = dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'byte' } })
-          expect(Array.isArray(result)).to.be.true
-          expect(Buffer.isBuffer(result[0])).to.be.true
-          expect(Buffer.isBuffer(result[1])).to.be.true
-          expect(Buffer.isBuffer(result[2])).to.be.true
-          expect(Buffer.isBuffer(result[3])).to.be.true
-          expect(result[0][0]).to.equal(233)
-          expect(result[1][0]).to.equal(255)
-          expect(result[2][0]).to.equal(222)
-          expect(result[3][0]).to.equal(223)
+          expect(Array.isArray(result.value)).to.be.true
+          expect(Buffer.isBuffer(result.value[0])).to.be.true
+          expect(Buffer.isBuffer(result.value[1])).to.be.true
+          expect(Buffer.isBuffer(result.value[2])).to.be.true
+          expect(Buffer.isBuffer(result.value[3])).to.be.true
+          expect(result.value[0][0]).to.equal(233)
+          expect(result.value[1][0]).to.equal(255)
+          expect(result.value[2][0]).to.equal(222)
+          expect(result.value[3][0]).to.equal(223)
+          expect(result.bytesLength).to.equal(4)
         })
       })
 
@@ -341,7 +345,8 @@ describe('data types', function() {
           buffer.writeInt16BE(-1000, 10)
           buffer.writeInt16BE(-1001, 12)
           buffer.writeInt16BE(1002, 14)
-          expect(dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'int16' } })).to.eql([1000, -1000, -1001, 1002])
+          expect(dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'int16' } }))
+            .to.eql({ value: [1000, -1000, -1001, 1002], bytesLength: 8 })
         })
       })
 
@@ -371,7 +376,8 @@ describe('data types', function() {
           buffer.writeInt16BE(1000, 10)
           buffer.writeInt16BE(1001, 12)
           buffer.writeInt16BE(1002, 14)
-          expect(dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'uint16' } })).to.eql([1000, 1000, 1001, 1002])
+          expect(dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'uint16' } }))
+            .to.eql({ value: [1000, 1000, 1001, 1002], bytesLength: 8 })
         })
       })
 
@@ -401,7 +407,8 @@ describe('data types', function() {
           buffer.writeDoubleBE(1000.3, 16)
           buffer.writeDoubleBE(1001.4, 24)
           buffer.writeDoubleBE(1002.5, 32)
-          expect(dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'double' } })).to.eql([1000.2, 1000.3, 1001.4, 1002.5])
+          expect(dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'double' } }))
+            .to.eql({ value: [1000.2, 1000.3, 1001.4, 1002.5], bytesLength: 32 })
         })
       })
 
@@ -431,12 +438,16 @@ describe('data types', function() {
           buffer.writeFloatBE(1000.2999877929688, 12)
           buffer.writeFloatBE(1001.4000244140625, 16)
           buffer.writeFloatBE(1002.5, 20)
-          expect(dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'float' } })).to.eql([
-            1000.2000122070312,
-            1000.2999877929688,
-            1001.4000244140625,
-            1002.5
-          ])
+          expect(dataTypes.array.read(buffer, { offset: 8, length: 4, items: { type: 'float' } }))
+            .to.eql({
+              value: [
+                1000.2000122070312,
+                1000.2999877929688,
+                1001.4000244140625,
+                1002.5
+              ],
+              bytesLength: 16
+            })
         })
       })
 

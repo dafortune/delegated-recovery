@@ -11,7 +11,7 @@ const types = {
       assertOptions(options)
       assertOffset(options.offset)
 
-      return buffer.readUInt8(options.offset)
+      return { value: buffer.readUInt8(options.offset), bytesLength: this.bytes() }
     },
 
     write(buffer, value, options) {
@@ -39,7 +39,7 @@ const types = {
       assertOptions(options)
       assertOffset(options.offset)
 
-      return buffer.readInt8(options.offset)
+      return { value: buffer.readInt8(options.offset), bytesLength: this.bytes() }
     },
 
     write(buffer, value, options) {
@@ -67,7 +67,7 @@ const types = {
       assertOptions(options)
       assertOffset(options.offset)
 
-      return buffer.slice(options.offset, options.offset + 1)
+      return { value: buffer.slice(options.offset, options.offset + 1), bytesLength: this.bytes() }
     },
 
     write(buffer, value, options) {
@@ -99,7 +99,7 @@ const types = {
       assertOptions(options)
       assertOffset(options.offset)
 
-      return buffer.readUInt16BE(options.offset)
+      return { value: buffer.readUInt16BE(options.offset), bytesLength: this.bytes() }
     },
 
     write(buffer, value, options) {
@@ -135,7 +135,7 @@ const types = {
       assertOptions(options)
       assertOffset(options.offset)
 
-      return buffer.readInt16BE(options.offset)
+      return { value: buffer.readInt16BE(options.offset), bytesLength: this.bytes() }
     },
 
     write(buffer, value, options) {
@@ -167,7 +167,7 @@ const types = {
       assertOptions(options)
       assertOffset(options.offset)
 
-      return buffer.readDoubleBE(options.offset)
+      return { value: buffer.readDoubleBE(options.offset), bytesLength: this.bytes() }
     },
 
     write(buffer, value, options) {
@@ -199,7 +199,7 @@ const types = {
       assertOptions(options)
       assertOffset(options.offset)
 
-      return buffer.readFloatBE(options.offset)
+      return { value: buffer.readFloatBE(options.offset), bytesLength: this.bytes() }
     },
 
     write(buffer, value, options) {
@@ -232,7 +232,10 @@ const types = {
       assertOffset(options.offset)
       assertLength(options.length)
 
-      return buffer.slice(options.offset, options.offset + options.length).toString('utf8')
+      return {
+        value: buffer.slice(options.offset, options.offset + options.length).toString('utf8'),
+        bytesLength: options.length
+      }
     },
 
     write(buffer, value, options) {
@@ -269,7 +272,10 @@ const types = {
       assertOffset(options.offset)
       assertLength(options.length)
 
-      return buffer.slice(options.offset, options.offset + options.length)
+      return {
+        value: buffer.slice(options.offset, options.offset + options.length),
+        bytesLength: options.length
+      }
     },
 
     write(buffer, value, options) {
@@ -312,15 +318,17 @@ const types = {
       assertFixedSize(type, options.items.type)
 
       let offset = options.offset
+      let totalBytes = 0
       let result = []
 
       while(result.length < options.length) {
         let readed = type.read(buffer, { offset })
-        result.push(readed)
-        offset += type.bytes(readed)
+        result.push(readed.value)
+        offset += readed.bytesLength
+        totalBytes += readed.bytesLength
       }
 
-      return result
+      return { value: result, bytesLength: totalBytes }
     },
 
     write(buffer, values, options) {
@@ -366,13 +374,13 @@ const types = {
 }
 
 function assertLength(length) {
-  assert.number(length, 'offset must be a number')
-  assert.positive(length, 'length must be greater than zero')
+  assert.number(length, `length must be a number, current length: ${length}`)
+  assert.positive(length, `length must be greater than zero, current length: ${length}`)
 }
 
 function assertOffset(offset) {
-  assert.number(offset, 'offset must be a number')
-  assert.positiveOrZero(offset, 'offset must be greater or equal to zero')
+  assert.number(offset, `offset must be a number, current value: ${offset}`)
+  assert.positiveOrZero(offset, `offset must be greater or equal to zero, current value: ${offset}`)
 }
 
 function assertOptions(options) {
