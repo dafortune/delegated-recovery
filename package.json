@@ -4,7 +4,7 @@
   "description": "Delegated recovery draft implementation",
   "main": "index.js",
   "scripts": {
-    "test": "mocha . --recursive"
+    "test": "mocha $(find . -path '*tests.js' ! -path '*node_modules*' ! -path '*.git*')"
   },
   "repository": {
     "type": "git",

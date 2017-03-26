@@ -11,7 +11,7 @@ module.exports = function decode(schema, sequence) {
   const parsed = parseSchema(schema)
 
   let currentOffset = 0
-  return parsed.order.reduce((result, property) => {
+  const properties = parsed.order.reduce((result, property) => {
     const descriptor = parsed.properties[property]
 
     const readResult = read({
@@ -27,6 +27,8 @@ module.exports = function decode(schema, sequence) {
 
     return result
   }, {})
+
+  return { properties, parsed: sequence.slice(0, currentOffset), left: sequence.slice(currentOffset) }
 }
 
 function read(options) {
@@ -56,6 +58,7 @@ function getLength(type, currentDescriptor, partialResult) {
 
   assert.mapObject(currentDescriptor.length, `length is required on schema for property ${currentDescriptor.property}`)
 
+  // Dynamic length types with a fixed length specified on the schema
   if (typeof currentDescriptor.length.value === 'number' &&
     !isNaN(currentDescriptor.length.value)) {
     return currentDescriptor.length.value
@@ -64,6 +67,7 @@ function getLength(type, currentDescriptor, partialResult) {
   assert.string(currentDescriptor.length.property, `value or property is required ` +
   `for property 'length' on schema ${currentDescriptor.property}`)
 
+  // Dynamic length types with size specified on a previously read property
   const length = partialResult[currentDescriptor.length.property];
 
   assert.integer(length, `The value of the related property ${currentDescriptor.length.property} ` +

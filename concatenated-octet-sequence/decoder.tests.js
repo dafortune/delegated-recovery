@@ -118,7 +118,7 @@ describe('decoder', function() {
 
   describe('when schema and properties are valid', function() {
     it('returns the corresponding object', function() {
-      expect(decoder(schema, sequence)).to.eql(values)
+      expect(decoder(schema, sequence)).to.have.property('properties').and.eql(values)
     })
   })
 

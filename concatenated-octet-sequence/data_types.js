@@ -375,7 +375,7 @@ const types = {
 
 function assertLength(length) {
   assert.number(length, `length must be a number, current length: ${length}`)
-  assert.positive(length, `length must be greater than zero, current length: ${length}`)
+  assert.positiveOrZero(length, `length must be greater than zero, current length: ${length}`)
 }
 
 function assertOffset(offset) {
