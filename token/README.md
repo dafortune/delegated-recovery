@@ -42,15 +42,23 @@ const token = tokenHelper.sign({ schema }, {
 console.log(token);
 
 // Verifying the token
-const publicKey = [
+const publicKey1 = [
     '-----BEGIN PUBLIC KEY-----',
     'MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEU2eUvr2awpksy9Ipsz2tdDx7gdm+',
     'emNsgglLWSvZR2IDKEnsuME+oGPkWdG0qDPhjlStVDaafZiVdie40WWV6A==',
     '-----END PUBLIC KEY-----'
   ].join('\n');
 
+// const publicKey2 = '-----BEGIN PUBLIC KEY-----',
+// ...
+// '-----END PUBLIC KEY-----'
+
 try {
-  const decodedToken = tokenHelper.verifySignature({ schema }, publicKey, token);
+  const decodedToken = tokenHelper.verifySignature({ schema }, [
+    publicKey1,
+    // publicKey2,
+    // ...
+  ], token);
   console.log(decodedToken); // { version: 2, issuer: 'http://me.com' }
 } catch (e) {
   console.log('Invalid token', e);
@@ -109,7 +117,7 @@ Example
 so it is not private anymore; below you will find methods to generate your
 own key.
 
-### .verifySignature({ schema }, publicKeyPem, token)
+### .verifySignature({ schema }, publicKeyPems, token)
 Given a token and an schema for its structure, decodes the token and verifies the signature.
 
 **Returns (object)** Decoded token if the signature is valid
@@ -155,7 +163,7 @@ Example:
   ]
 ```
 
-* publicKeyPem (string): Public key PEM to validate token signature.
+* publicKeyPems (string|Array.<string>): Public key PEM/s to validate token signature.
 Example
 ```
     -----BEGIN PUBLIC KEY-----

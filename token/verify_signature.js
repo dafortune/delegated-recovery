@@ -11,7 +11,7 @@ const crypto = require('crypto');
 /**
  * @param {Object} options
  * @param {Array.<Object>} options.schema
- * @param {string} publicKeyPem Public key pem string
+ * @param {string|Array.<string>} publicKeyPem Public key pem string
  * @param {string} token
  */
 module.exports = function(options, publicKeyPem, token) {
@@ -28,8 +28,8 @@ module.exports = function(options, publicKeyPem, token) {
     throw new InvalidTokenError('Token must be a buffer or a base64 encoded string');
   }
 
-  if (typeof publicKeyPem !== 'string') {
-    throw new Error('publicKeyPem must be a valid public key pem as string');
+  if (typeof publicKeyPem !== 'string' && !Array.isArray(publicKeyPem)) {
+    throw new Error('publicKeyPem must be a valid public key pem as string or array of strings');
   }
 
   if (!options.schema) {
@@ -44,11 +44,16 @@ module.exports = function(options, publicKeyPem, token) {
     throw new InvalidTokenError('Token payload is not valid. Check innerError for details', e);
   }
 
-  const verifier = crypto.createVerify('sha256')
+  const publicKeyPems = Array.isArray(publicKeyPem) ? publicKeyPem : [ publicKeyPem ];
 
-  verifier.update(parsingResult.parsed)
+  const signatureVerified = publicKeyPems.some((publicKeyPem) => {
+    const verifier = crypto.createVerify('sha256')
+    verifier.update(parsingResult.parsed)
 
-  if (verifier.verify(publicKeyPem, parsingResult.left)) {
+    return verifier.verify(publicKeyPem, parsingResult.left);
+  });
+
+  if (signatureVerified) {
     return parsingResult.properties;
   } else {
     throw new InvalidSignatureError('Token signature is not valid');

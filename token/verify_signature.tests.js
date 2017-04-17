@@ -39,6 +39,30 @@ describe('token', function() {
       });
     });
 
+    describe('and when using an array of keys', function() {
+      describe('when signature is valid against any of the public keys', function() {
+        it('returns the decoded token', function() {
+          const decoded = verify({ schema: testFixture.fixture1.schema, }, [
+            testFixture.fixture1.otherPublicKey,
+            testFixture.fixture1.publicKey,
+          ], testFixture.fixture1.token);
+          expect(decoded).to.deep.equal(testFixture.fixture1.decoded);
+        });
+      });
+
+      describe('when signature is not valid against any of the public keys', function() {
+        it('throws an error', function() {
+          expect(() => {
+            verify({ schema: testFixture.fixture1.schema, },
+              [
+                testFixture.fixture1.otherPublicKey,
+                testFixture.fixture1.otherPublicKey
+              ], testFixture.fixture1.token);
+          }).to.throw(InvalidSignatureError).and.have.property('message', 'Token signature is not valid');
+        });
+      });
+    });
+
     describe('when token signature is not valid', function() {
       it('throws an error', function() {
         expect(() => {
