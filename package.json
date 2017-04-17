@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/dafortune/delegated-recovery#readme",
   "dependencies": {
-    "lodash": "^4.17.4"
+    "iron": "^4.0.4",
+    "lodash": "^4.17.4",
+    "thenify": "^3.2.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
